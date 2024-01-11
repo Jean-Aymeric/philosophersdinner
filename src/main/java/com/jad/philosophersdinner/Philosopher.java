@@ -42,20 +42,17 @@ public class Philosopher implements Runnable {
     this.state = PhilosopherState.HUNGRY;
     System.out.println(this.name + " is hungry");
 
-    this.rightFork.lock();
-    System.out.println(this.name + " took right fork");
+    this.takeRightFork();
     Thread.sleep(Philosopher.TIME_BETWEEN_TAKING_FORKS);
-    this.leftFork.lock();
-    System.out.println(this.name + " took left fork");
+    this.takeLeftFork();
+  }
 
+  private void eat() throws InterruptedException {
     if ((System.currentTimeMillis() - this.lastEatTime) >= Philosopher.MAX_HUNGRY_TIME) {
       this.state = PhilosopherState.DEAD;
       System.out.println(this.name + " is dead");
       System.exit(0);
     }
-  }
-
-  private void eat() throws InterruptedException {
     this.state = PhilosopherState.EATING;
     System.out.println(this.name + " is eating");
     Thread.sleep(Philosopher.EATING_TIME);
@@ -64,5 +61,15 @@ public class Philosopher implements Runnable {
     this.leftFork.unlock();
     System.out.println(this.name + " released left fork");
     this.lastEatTime = System.currentTimeMillis();
+  }
+
+  private void takeRightFork() {
+    this.rightFork.lock();
+    System.out.println(this.name + " took right fork");
+  }
+
+  private void takeLeftFork() {
+    this.leftFork.lock();
+    System.out.println(this.name + " took left fork");
   }
 }
