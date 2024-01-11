@@ -2,10 +2,10 @@ package com.jad.philosophersdinner;
 
 public class Philosopher implements Runnable {
 
-  private static final long EATING_TIME = 400;
-  private static final long MAX_HUNGRY_TIME = 10000;
-  private static final long MAX_THINKING_TIME = 100;
-  private static final long TIME_BETWEEN_TAKING_FORKS = 70;
+  private static final long EATING_TIME = 100;
+  private static final long MAX_HUNGRY_TIME = 700;
+  private static final long MAX_THINKING_TIME = 400;
+  private static final long TIME_BETWEEN_TAKING_FORKS = 100;
   private final Fork leftFork;
   private final Fork rightFork;
   private final String name;
