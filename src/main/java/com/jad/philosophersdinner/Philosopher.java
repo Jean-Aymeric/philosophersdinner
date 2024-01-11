@@ -1,21 +1,19 @@
 package com.jad.philosophersdinner;
 
-public class Philosopher implements Runnable {
+public class Philosopher extends Thread {
 
   private static final long EATING_TIME = 100;
   private static final long MAX_HUNGRY_TIME = 700;
   private static final long MAX_THINKING_TIME = 400;
   private static final long TIME_BETWEEN_TAKING_FORKS = 100;
-  private final Fork leftFork;
-  private final Fork rightFork;
+  private final Forks forks;
   private final String name;
   private long lastEatTime;
   private PhilosopherState state;
 
-  public Philosopher(final String name, final Fork leftFork, final Fork rightFork) {
+  public Philosopher(final String name, final Forks forks) {
     this.name = name;
-    this.leftFork = leftFork;
-    this.rightFork = rightFork;
+    this.forks = forks;
   }
 
   @Override
@@ -41,6 +39,13 @@ public class Philosopher implements Runnable {
   private void takeForks() throws InterruptedException {
     this.state = PhilosopherState.HUNGRY;
     System.out.println(this.name + " is hungry");
+    do {
+      final int newPriority = this.calculatePriority();
+      if (newPriority != this.getPriority()) {
+        System.out.println(this.name + " changed priority to " + newPriority);
+        this.setPriority(newPriority);
+      }
+    } while (!this.forks.tryAcquire());
 
     this.takeRightFork();
     Thread.sleep(Philosopher.TIME_BETWEEN_TAKING_FORKS);
@@ -56,20 +61,27 @@ public class Philosopher implements Runnable {
     this.state = PhilosopherState.EATING;
     System.out.println(this.name + " is eating");
     Thread.sleep(Philosopher.EATING_TIME);
-    this.rightFork.unlock();
     System.out.println(this.name + " released right fork");
-    this.leftFork.unlock();
     System.out.println(this.name + " released left fork");
+    this.forks.release();
+    this.setPriority(Thread.MIN_PRIORITY);
+    System.out.println(this.name + " changed priority to " + Thread.MIN_PRIORITY);
     this.lastEatTime = System.currentTimeMillis();
   }
 
-  private void takeRightFork() {
-    this.rightFork.lock();
+  private int calculatePriority() {
+    int priority = (int) (
+        ((System.currentTimeMillis() - this.lastEatTime) * Thread.MAX_PRIORITY) / Philosopher.MAX_HUNGRY_TIME);
+    priority = Math.max(Math.min(priority, Thread.MAX_PRIORITY), Thread.MIN_PRIORITY);
+    //System.out.println(this.name + " calculated priority to " + priority);
+    return priority;
+  }
+
+  private void takeRightFork() throws InterruptedException {
     System.out.println(this.name + " took right fork");
   }
 
-  private void takeLeftFork() {
-    this.leftFork.lock();
+  private void takeLeftFork() throws InterruptedException {
     System.out.println(this.name + " took left fork");
   }
 }

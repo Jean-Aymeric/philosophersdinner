@@ -1,6 +1,6 @@
 package com.jad;
 
-import com.jad.philosophersdinner.Fork;
+import com.jad.philosophersdinner.Forks;
 import com.jad.philosophersdinner.Philosopher;
 import java.util.ArrayList;
 
@@ -12,18 +12,14 @@ public class Main {
 
   public static void main(final String[] args) {
     final ArrayList<Philosopher> philosophers = new ArrayList<>();
-    final ArrayList<Fork> forks = new ArrayList<>();
-    for (int i = 0; i < Main.FORKS_COUNT; i++) {
-      forks.add(new Fork());
-    }
+    final Forks forks = new Forks(Main.FORKS_COUNT);
+
     for (int i = 0; i < Main.PHILOSOPHERS_COUNT; i++) {
-      final Fork leftFork = forks.get(i);
-      final Fork rightFork = forks.get((i + 1) % Main.PHILOSOPHERS_COUNT);
-      philosophers.add(new Philosopher(Main.NAMES[i], leftFork, rightFork));
+      philosophers.add(new Philosopher(Main.NAMES[i], forks));
     }
 
     for (final Philosopher philosopher : philosophers) {
-      new Thread(philosopher).start();
+      philosopher.start();
     }
   }
 }
